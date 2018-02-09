@@ -5,23 +5,30 @@ import web3 from './web3';
 import lottery from './lottery';
 
 class App extends Component {
-  constructor(props) {
-    super(props);
-
-    this.state = { manager: '' };
+  //refactor: automatically moved to inside the constructor.
+  state = { 
+    manager: '',
+    players: [],
+    balance: ''
   }
 
   async componentDidMount() {
     const manager = await lottery.methods.manager().call(); //Don't have to call a specific account, because Metamask will call whichever account currently selected.
+    const players = await lottery.methods.getPlayers().call();
+    const balance = await web3.eth.getBalance(lottery.options.address); //Big number object
 
-    this.setState({ manager });
+    this.setState({ manager, players, balance });
   }
 
   render() {
     return (
       <div>
         <h2>Lottery Contract</h2>
-        <p>This contract is managed by {this.state.manager}</p>
+        <p>
+        This contract is managed by {this.state.manager}.
+        There are currently {this.state.players.length} people entered, 
+        competing to win {web3.utils.fromWei(this.state.balance, 'ether')} ether!
+        </p>
       </div>
     );
   }
